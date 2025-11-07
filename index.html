@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ShopKaro — Demo Store (Single File)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="ShopKaro — demo frontend e-commerce. 10 products, cart, checkout simulation, animations."/>
+  <style>
+    /* -------------------------
+       ShopKaro - Single-file CSS
+       Human-like, neat & readable
+       ------------------------- */
+    :root{
+      --bg:#071226;
+      --card:rgba(255,255,255,0.03);
+      --muted:#9fb0c8;
+      --accent:#00e0ff;
+      --accent-2:#00bcd4;
+      --success:#1dd1a1;
+      --radius:12px;
+      --maxw:1100px;
+      --shadow: 0 10px 30px rgba(11, 26, 92, 0.6);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, Poppins, system-ui, -apple-system, "Segoe UI", Roboto, Arial;color:#e6eef8;background:linear-gradient(180deg,#061026 0%, #071226 60%);}
+    .wrap{max-width:var(--maxw);margin:28px auto;padding:0 18px}
+    header.site-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;position:sticky;top:0;background:linear-gradient(180deg, rgba(0,0,0,0.35), transparent);backdrop-filter: blur(6px);z-index:40}
+    .brand a{color:var(--accent);text-decoration:none;font-weight:700;font-size:1.2rem}
+    nav a{color:#dfe9f3;margin-left:14px;text-decoration:none;font-weight:600}
+    .hero{display:flex;gap:28px;align-items:center;padding:26px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border-radius:14px;box-shadow:var(--shadow)}
+    .hero-left{flex:1}
+    .hero-right{flex:1;display:flex;justify-content:center}
+    .hero-title{font-size:2.2rem;color:var(--accent);margin:0}
+    .hero-sub{color:var(--muted);margin-top:8px}
+    .btn{display:inline-block;padding:10px 16px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#00121a;font-weight:700;text-decoration:none;border:none;cursor:pointer;box-shadow:0 8px 20px rgba(2,224,255,0.08)}
+    .btn.ghost{background:transparent;color:#dfe9f3;border:1px solid rgba(255,255,255,0.04)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-top:18px}
+    .card{background:var(--card);padding:14px;border-radius:12px;overflow:hidden;transition:transform .22s,box-shadow .22s}
+    .card:hover{transform:translateY(-8px);box-shadow:0 18px 50px rgba(2,6,23,0.6)}
+    .card img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+    .card h3{margin:10px 0 6px;color:#eaf8ff;font-size:1.05rem}
+    .card p{color:var(--muted);font-size:0.95rem;margin:0}
+    .card .price{font-weight:800;color:var(--accent);margin-top:8px}
+    .card .actions{display:flex;gap:8px;margin-top:12px}
+    .card .actions button{flex:1;padding:8px;border-radius:8px;border:0;cursor:pointer}
+    .card .actions button.add{background:#0fbc7a;color:#00120a;font-weight:700}
+    .card .actions button.view{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#dfe9f3}
+    section{margin-top:28px}
+    h2.section-title{font-size:1.6rem;color:var(--accent);margin:0 0 10px}
+    .search-row{display:flex;gap:10px;align-items:center;margin:14px 0}
+    .search-row input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .filters{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.03);cursor:pointer;font-weight:600}
+    .chip.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#00121a}
+    /* Product detail modal */
+    .modal{position:fixed;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:80;opacity:0;pointer-events:none;transition:opacity .18s}
+    .modal.show{opacity:1;pointer-events:auto}
+    .modal-card{background:#071226;padding:18px;border-radius:12px;max-width:900px;width:94%;display:flex;gap:18px}
+    .modal-card img{width:48%;border-radius:10px;object-fit:cover;height:320px}
+    .modal-content{flex:1}
+    .qty{display:inline-flex;align-items:center;gap:8px;margin-top:12px}
+    .qty button{padding:6px 10px;border-radius:8px;border:0;background:#222;color:#fff;cursor:pointer}
+    /* Cart icon / drawer */
+    .cart-btn{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,var(--accent),var(--accent-2));padding:12px;border-radius:50%;box-shadow:0 12px 30px rgba(0,224,255,0.12);cursor:pointer;z-index:90}
+    .cart-count{background:#00121a;color:var(--accent);padding:4px 8px;border-radius:999px;font-weight:700;margin-left:8px}
+    /* drawer */
+    .drawer{position:fixed;right:0;top:0;height:100%;width:380px;max-width:95%;background:#071226;box-shadow:-8px 0 40px rgba(2,6,23,0.6);z-index:85;padding:18px;transform:translateX(110%);transition:transform .28s}
+    .drawer.open{transform:translateX(0)}
+    .cart-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:rgba(255,255,255,0.01);margin-bottom:10px}
+    .cart-summary{margin-top:12px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02)}
+    .checkout-area input{width:100%;padding:8px;margin-top:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .small{font-size:0.85rem;color:var(--muted)}
+    footer{margin-top:40px;padding:18px;text-align:center;color:#99a7b8}
+    /* responsive */
+    @media (max-width:800px){
+      .hero{flex-direction:column}
+      .modal-card{flex-direction:column}
+      .modal-card img{width:100%;height:240px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="site-header" role="banner">
+      <div class="brand"><a href="#" onclick="goHome(event)">ShopKaro</a></div>
+      <nav aria-label="Main Navigation">
+        <a href="#" onclick="goHome(event)">Home</a>
+        <a href="#products" onclick="scrollToSection('products')">Products</a>
+        <a href="#contact" onclick="scrollToSection('contact')">Contact</a>
+        <button class="btn ghost" onclick="openDrawer()">Cart <span id="cart-badge" class="cart-count">0</span></button>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" role="region" aria-label="Introduction">
+      <div class="hero-left">
+        <h1 class="hero-title">Real. Simple. Human — ShopKaro</h1>
+        <p class="hero-sub">Portfolio-ready frontend e-commerce demo. 10 products, cart saved in your browser, checkout simulation, and smooth UI.</p>
+        <div style="margin-top:14px">
+          <a class="btn" href="#products" onclick="scrollToSection('products')">Start shopping</a>
+          <button class="btn ghost" onclick="openDrawer()">Open Cart</button>
+        </div>
+      </div>
+      <div class="hero-right">
+        <img alt="store-display" src="https://tse4.mm.bing.net/th/id/OIP.j3yaptLXkmcemmKFeH20ugHaEJ?pid=Api&P=0&h=180" />
+      </div>
+    </section>
+
+    <!-- PRODUCTS + SEARCH -->
+    <section id="products" aria-label="Products">
+      <h2 class="section-title">Products</h2>
+
+      <div class="search-row" role="search">
+        <input id="search" placeholder="Search products (e.g. jacket, watch) ..." aria-label="Search products">
+        <div class="filters" id="filters" aria-hidden="false"></div>
+      </div>
+
+      <div id="product-list" class="grid" role="list" aria-live="polite"></div>
+    </section>
+
+    <!-- small features -->
+    <section aria-label="Why ShopKaro">
+      <h2 class="section-title">Why this demo?</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:12px">
+        <div class="card"><h3 style="color:var(--accent)">Portfolio-ready</h3><p class="small">Use this live link on your resume to show recruiters your real UI skills.</p></div>
+        <div class="card"><h3 style="color:var(--accent)">Local Storage Cart</h3><p class="small">Cart persists in browser; try refresh & reopen.</p></div>
+        <div class="card"><h3 style="color:var(--accent)">Human Style</h3><p class="small">Readable code, friendly UX, and common real-world rules (shipping, tax).</p></div>
+      </div>
+    </section>
+
+    <footer id="contact">
+      <p class="small">© 2025 ShopKaro • Built by Vishal Sharma — <a href="mailto:vishalsharma6672@gmail.com" style="color:var(--accent)">Contact</a></p>
+    </footer>
+  </div>
+
+  <!-- PRODUCT DETAIL MODAL -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card" role="document">
+      <img id="modal-img" src="" alt="Product image">
+      <div class="modal-content">
+        <h3 id="modal-title"></h3>
+        <p id="modal-desc" class="small"></p>
+        <div id="modal-price" style="font-weight:800;color:var(--accent);margin-top:8px"></div>
+        <div class="qty">
+          <label class="small">Qty</label>
+          <button onclick="modalQty(-1)">-</button>
+          <input id="modal-qty" type="number" value="1" min="1" style="width:60px;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit">
+          <button onclick="modalQty(1)">+</button>
+        </div>
+        <div style="margin-top:12px">
+          <button class="btn" onclick="modalAddToCart()">Add to cart</button>
+          <button class="btn ghost" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART DRAWER -->
+  <div id="drawer" class="drawer" aria-hidden="true">
+    <h3>My Cart</h3>
+    <div id="drawer-contents" style="margin-top:12px"></div>
+    <div id="drawer-summary" class="cart-summary"></div>
+
+    <div style="margin-top:12px">
+      <h4 class="small" style="margin:6px 0">Checkout</h4>
+      <div class="checkout-area">
+        <input id="chk-name" placeholder="Your name" />
+        <input id="chk-email" placeholder="Email" />
+        <div style="margin-top:8px">
+          <button class="btn" onclick="checkout()">Place Order</button>
+          <button class="btn ghost" onclick="closeDrawer()">Close</button>
+        </div>
+        <p id="checkout-result" class="small" style="color:var(--success);margin-top:8px"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- floating cart button -->
+  <button class="cart-btn" aria-label="Open cart" onclick="openDrawer()">
+    🛒 <span id="float-count" class="cart-count">0</span>
+  </button>
+
+  <!-- Single-file JS (human comments included) -->
+  <script>
+  /*****************************************************************************
+   * ShopKaro Single-file JS
+   * Human written style: clear variable names, comments, and small helper functions
+   * Features:
+   *  - 10 products array
+   *  - Search + simple filter chips (category)
+   *  - Modal product detail
+   *  - Cart stored in localStorage
+   *  - Drawer UI for cart & checkout simulation
+   *  - Bug handling: qty min/max, empty cart, invalid checkout inputs
+   *****************************************************************************/
+
+  // ---------------------------
+  // PRODUCTS (10 items)
+  // ---------------------------
+  const PRODUCTS = [
+    {id:1, title:"Classic Tee - White", price:499, desc:"Comfortable cotton t-shirt.", img:"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80", category:"Clothing"},
+    {id:2, title:"Denim Jacket", price:1299, desc:"Stylish denim jacket — casual look.", img:"https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80", category:"Clothing"},
+    {id:3, title:"Sport Sneakers", price:1999, desc:"Lightweight running shoes.", img:"https://sp.yimg.com/ib/th?id=OPAC.hv3eZApgmhyvzw474C474&o=5&pid=21.1&w=174&h=174", category:"Footwear"},
+    {id:4, title:"Casual Hoodie", price:899, desc:"Cozy hoodie for daily wear.", img:"https://sp.yimg.com/ib/th?id=OPAC.3YJZVv2WBw8EKQ474C474&o=5&pid=21.1&w=174&h=174", category:"Clothing"},
+    {id:5, title:"Analog Watch", price:1499, desc:"Classic analog wristwatch.", img:"https://sp.yimg.com/ib/th?id=OPAC.rh32ySlGEYk5Mg474C474&o=5&pid=21.1&w=174&h=174", category:"Accessories"},
+    {id:6, title:"Backpack", price:799, desc:"Durable travel backpack.", img:"https://tse1.mm.bing.net/th/id/OIP.q5nTMMw-NEnKMvpHnBFexAHaIO?pid=Api&rs=1&c=1&qlt=95&w=103&h=114", category:"Bags"},
+    {id:7, title:"Sunglasses", price:399, desc:"Polarized sunglasses.", img:"https://sp.yimg.com/ib/th?&id=ODL.1533c40f5ea99b24f52259171284f131&w=200&h=107&c=4&dpr=2&rs=1", category:"Accessories"},
+    {id:8, title:"Wireless Earbuds", price:1299, desc:"True wireless sound.", img:"https://tse1.mm.bing.net/th/id/OIP.HgmUaT2xRV4dMs4vo2_0TgHaHa?pid=Api&rs=1&c=1&qlt=95&w=107&h=107", category:"Electronics"},
+    {id:9, title:"Travel Mug", price:249, desc:"Keeps drinks hot/cold.", img:"https://sp.yimg.com/ib/th?id=OPAC.ULugmSSXTrQnMw474C474&o=5&pid=21.1&w=174&h=174", category:"Home"},
+    {id:10, title:"Yoga Mat", price:599, desc:"Non-slip yoga mat.", img:"https://tse1.mm.bing.net/th/id/OIP.kEvpjZBweC8RI5VEfJJIIAHaE8?pid=Api&rs=1&c=1&qlt=95&w=177&h=118", category:"Fitness"}
+  ];
+
+  // Local storage key
+  const CART_KEY = "shopkaro_cart_v2";
+  const ORDERS_KEY = "shopkaro_orders_v2";
+
+  // Small helpers
+  function $(id){ return document.getElementById(id); }
+  function qs(sel){ return document.querySelector(sel); }
+  function qsa(sel){ return document.querySelectorAll(sel); }
+  function formatCurrency(n){ return "₹ " + Number(n).toFixed(2); }
+  function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  // CART functions (localStorage)
+  function readCart(){
+    try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
+    catch(e){ localStorage.removeItem(CART_KEY); return []; }
+  }
+  function writeCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); updateCartUI(); }
+  function updateCartUI(){
+    const cart = readCart();
+    const totalCount = cart.reduce((s,i)=>s+(i.qty||0),0);
+    $("cart-badge").textContent = totalCount;
+    $("float-count").textContent = totalCount;
+  }
+  // add to cart with qty limit protection
+  function addToCart(id, qty){
+    qty = Math.max(1, Number(qty) || 1);
+    const cart = readCart();
+    const idx = cart.findIndex(i=>Number(i.id)===Number(id));
+    if(idx>=0){ cart[idx].qty = Math.min(99, cart[idx].qty + qty); }
+    else cart.push({id:Number(id), qty:qty});
+    writeCart(cart);
+    // small friendly non-blocking toast
+    showToast("Added to cart");
+  }
+  function changeCartQty(id, delta){
+    const cart = readCart();
+    const idx = cart.findIndex(i=>Number(i.id)===Number(id));
+    if(idx<0) return;
+    cart[idx].qty = Math.max(0, cart[idx].qty + delta);
+    if(cart[idx].qty===0) cart.splice(idx,1);
+    writeCart(cart);
+    renderDrawer();
+  }
+  function removeFromCart(id){
+    const cart = readCart().filter(i=>Number(i.id)!==Number(id));
+    writeCart(cart);
+    renderDrawer();
+  }
+
+  // -----------------------
+  // RENDER PRODUCTS LIST
+  // -----------------------
+  function renderProducts(list){
+    const target = $("product-list");
+    target.innerHTML = "";
+    if(!list || list.length===0){
+      target.innerHTML = "<p class='small'>No products found. Try different search.</p>";
+      return;
+    }
+    list.forEach(p=>{
+      const el = document.createElement("div");
+      el.className = "card";
+      el.innerHTML = `
+        <img src="${p.img}" alt="${escapeHtml(p.title)}">
+        <h3>${escapeHtml(p.title)}</h3>
+        <p class="small">${escapeHtml(p.desc)}</p>
+        <div class="price">${formatCurrency(p.price)}</div>
+        <div class="actions">
+          <button class="view" onclick="openModal(${p.id})">View</button>
+          <button class="add" onclick="addToCart(${p.id},1)">Add to cart</button>
+        </div>
+      `;
+      target.appendChild(el);
+    });
+  }
+
+  // -----------------------
+  // FILTERS & SEARCH
+  // -----------------------
+  function uniqueCategories(){
+    const set = new Set(PRODUCTS.map(p=>p.category));
+    return Array.from(set);
+  }
+  function renderFilterChips(){
+    const box = $("filters");
+    box.innerHTML = "";
+    const cats = uniqueCategories();
+    const all = document.createElement("div"); all.className="chip active"; all.textContent="All"; all.onclick = ()=>{ qsa(".chip").forEach(c=>c.classList.remove("active")); all.classList.add("active"); applyFilters(); };
+    box.appendChild(all);
+    cats.forEach(cat=>{
+      const d = document.createElement("div"); d.className="chip"; d.textContent=cat;
+      d.onclick = ()=>{ qsa(".chip").forEach(c=>c.classList.remove("active")); d.classList.add("active"); applyFilters(); };
+      box.appendChild(d);
+    });
+  }
+  function applyFilters(){
+    const search = $("search").value.trim().toLowerCase();
+    const active = Array.from(qsa(".chip")).find(c=>c.classList.contains("active"));
+    const cat = active && active.textContent!=="All" ? active.textContent : null;
+    let result = PRODUCTS.filter(p=>{
+      const matchesSearch = p.title.toLowerCase().includes(search) || p.desc.toLowerCase().includes(search) || p.category.toLowerCase().includes(search);
+      const matchesCat = cat ? p.category === cat : true;
+      return matchesSearch && matchesCat;
+    });
+    renderProducts(result);
+  }
+
+  // -----------------------
+  // Modal (product detail)
+  // -----------------------
+  let currentModalProduct = null;
+  function openModal(id){
+    const p = PRODUCTS.find(x=>Number(x.id)===Number(id));
+    if(!p) return;
+    currentModalProduct = p;
+    $("modal-img").src = p.img;
+    $("modal-title").textContent = p.title;
+    $("modal-desc").textContent = p.desc;
+    $("modal-price").textContent = formatCurrency(p.price);
+    $("modal-qty").value = 1;
+    const modal = $("modal"); modal.classList.add("show"); modal.setAttribute("aria-hidden","false");
+  }
+  function closeModal(){ $("modal").classList.remove("show"); $("modal").setAttribute("aria-hidden","true"); currentModalProduct=null; }
+  function modalQty(delta){ const el=$("modal-qty"); el.value = Math.max(1, Number(el.value||1) + delta); }
+  function modalAddToCart(){ if(!currentModalProduct) return; const qty = Number($("modal-qty").value||1); addToCart(currentModalProduct.id, qty); closeModal(); }
+
+  // close modal on outside click
+  document.getElementById("modal").addEventListener("click", function(e){
+    if(e.target === this) closeModal();
+  });
+
+  // -----------------------
+  // DRAWER (cart)
+  // -----------------------
+  function openDrawer(){ $("drawer").classList.add("open"); $("drawer").setAttribute("aria-hidden","false"); renderDrawer(); }
+  function closeDrawer(){ $("drawer").classList.remove("open"); $("drawer").setAttribute("aria-hidden","true"); }
+  function renderDrawer(){
+    const cont = $("drawer-contents"); cont.innerHTML = "";
+    const cart = readCart();
+    if(cart.length===0){ cont.innerHTML = "<p class='small'>Your cart is empty. Add some products.</p>"; $("drawer-summary").innerHTML=""; return; }
+    let subtotal = 0;
+    cart.forEach(ci=>{
+      const p = PRODUCTS.find(x=>Number(x.id)===Number(ci.id)); if(!p) return;
+      const line = p.price * ci.qty; subtotal += line;
+      const div = document.createElement("div"); div.className="cart-item";
+      div.innerHTML = `<div>
+          <strong>${escapeHtml(p.title)}</strong><br><small class="small">${formatCurrency(p.price)} x ${ci.qty} = ${formatCurrency(line)}</small>
+        </div>
+        <div>
+          <button onclick="changeCartQty(${p.id}, -1)">-</button>
+          <button onclick="changeCartQty(${p.id}, 1)">+</button>
+          <button style="background:#f0506e;color:white;border-radius:8px;padding:6px 10px;border:0;margin-left:6px" onclick="removeFromCart(${p.id})">Remove</button>
+        </div>`;
+      cont.appendChild(div);
+    });
+    const shipping = subtotal > 1999 ? 0 : 49;
+    const tax = +(subtotal * 0.12).toFixed(2);
+    const total = +(subtotal + shipping + tax).toFixed(2);
+    $("drawer-summary").innerHTML = `<div><strong>Subtotal:</strong> ${formatCurrency(subtotal)}</div>
+      <div><strong>Shipping:</strong> ${shipping===0 ? "Free" : formatCurrency(shipping)}</div>
+      <div><strong>Tax (12%):</strong> ${formatCurrency(tax)}</div>
+      <h3 style="margin-top:8px">Total: ${formatCurrency(total)}</h3>`;
+  }
+
+  // -----------------------
+  // CHECKOUT (simulate)
+  // -----------------------
+  function checkout(){
+    const name = $("chk-name").value.trim();
+    const email = $("chk-email").value.trim();
+    if(!name || !email || !/@/.test(email)){
+      $("checkout-result").textContent = "Please enter a valid name and email";
+      return;
+    }
+    const cart = readCart();
+    if(cart.length===0){ $("checkout-result").textContent = "Cart is empty"; return; }
+    // compute total again
+    let subtotal = 0;
+    cart.forEach(ci=>{ const p = PRODUCTS.find(x=>Number(x.id)===Number(ci.id)); if(p) subtotal += p.price * ci.qty; });
+    const shipping = subtotal > 1999 ? 0 : 49;
+    const tax = +(subtotal * 0.12).toFixed(2);
+    const total = +(subtotal + shipping + tax).toFixed(2);
+    // create order object
+    const order = { order_id: "ORD"+Date.now(), created_at: new Date().toISOString(), customer:{name,email}, items:cart, total: total };
+    // save to localStorage orders so recruiters can inspect (note: frontend demo only)
+    try {
+      const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+      orders.push(order);
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+    } catch(e){}
+    // clear cart
+    localStorage.removeItem(CART_KEY);
+    updateCartUI();
+    renderDrawer();
+    $("checkout-result").textContent = `Order placed! ID: ${order.order_id}`;
+    // small visual confetti
+    simpleConfetti();
+  }
+
+  // -----------------------
+  // tiny confetti - light
+  // -----------------------
+  function simpleConfetti(){
+    const wrap = document.createElement("div"); wrap.style.position="fixed"; wrap.style.left=0; wrap.style.top=0; wrap.style.width="100%"; wrap.style.height="100%"; wrap.style.pointerEvents="none"; wrap.style.zIndex=9999;
+    for(let i=0;i<24;i++){
+      const d = document.createElement("div"); d.style.position="absolute"; d.style.left=(10+Math.random()*80)+"%"; d.style.top="-10%"; d.style.width=d.style.height=(6+Math.random()*8)+"px"; d.style.background=["#00e0ff","#00ffa3","#ffd166","#ff6b6b"][Math.floor(Math.random()*4)]; d.style.borderRadius="50%"; d.style.opacity=1;
+      wrap.appendChild(d);
+      setTimeout(()=>{ d.style.transition="transform 1200ms cubic-bezier(.2,.9,.2,1), opacity 1200ms"; d.style.transform=`translateY(${600+Math.random()*200}px) rotate(${Math.random()*360}deg)`; d.style.opacity=0; }, 50+i*20);
+    }
+    document.body.appendChild(wrap);
+    setTimeout(()=>document.body.removeChild(wrap), 1600);
+  }
+
+  // -----------------------
+  // Small toast message
+  // -----------------------
+  let toastTimer = null;
+  function showToast(msg){
+    let t = qs(".small-toast");
+    if(!t){
+      t = document.createElement("div"); t.className="small-toast"; t.style.position="fixed"; t.style.left="50%"; t.style.transform="translateX(-50%)"; t.style.bottom="24px"; t.style.background="rgba(0,0,0,0.6)"; t.style.padding="10px 16px"; t.style.borderRadius="10px"; t.style.color="#fff"; t.style.zIndex=9999; document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = "1";
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{ t.style.transition="opacity .4s"; t.style.opacity="0"; }, 1500);
+  }
+
+  // -----------------------
+  // Init on load
+  // -----------------------
+  (function init(){
+    renderFilterChips();
+    renderProducts(PRODUCTS);
+    updateCartUI();
+    // search input events
+    $("search").addEventListener("input", ()=>{ applyFilters(); });
+    // open product if query param view is given
+    try {
+      const urlp = new URL(location.href);
+      const v = urlp.searchParams.get("view");
+      if(v) openModal(Number(v));
+    } catch(e){}
+  })();
+
+  // -----------------------
+  // Page helpers (nice)
+  // -----------------------
+  function goHome(e){ e && e.preventDefault(); window.scrollTo({top:0, behavior:"smooth"}); }
+  function scrollToSection(id){ const el = document.getElementById(id); if(el) el.scrollIntoView({behavior:"smooth"}); }
+
+  // Expose minimal functions to global (for inline handlers)
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+  window.modalAddToCart = modalAddToCart;
+  window.modalQty = modalQty;
+  window.openDrawer = openDrawer;
+  window.closeDrawer = closeDrawer;
+  window.addToCart = addToCart;
+  window.changeCartQty = changeCartQty;
+  window.removeFromCart = removeFromCart;
+  window.checkout = checkout;
+
+  </script>
+</body>
+</html>
